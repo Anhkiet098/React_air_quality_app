@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import WeatherInfo from './components/WeatherInfo';
 import AirQualityInfo from './components/AirQualityInfo';
 import AirQualityMap from './components/AirQualityMap';
+import AQIPredictionChart from './components/AQIPredictionChart';
 
 const AppContainer = styled.div`
   font-family: 'Roboto', sans-serif;
@@ -46,6 +47,7 @@ function App() {
       <MainContent>
         <WeatherInfo />
         <AirQualityInfo />
+        <AQIPredictionChart />
       </MainContent>
       <MapContainer>
         <AirQualityMap />
@@ -55,5 +57,3 @@ function App() {
 }
 
 export default App;
-
-
