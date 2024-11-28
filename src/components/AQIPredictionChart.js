@@ -1,3 +1,5 @@
+// my-react-app2/src/components/AQIPredictionChart.js
+
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import {
@@ -65,17 +67,32 @@ function AQIPredictionChart() {
   useEffect(() => {
     const fetchPredictions = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/predict');
+        const response = await fetch('http://localhost:8000/predict_day', {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          mode: 'cors'  // Thêm dòng này
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
         
         if (data.status === 'success') {
-          // Format dữ liệu và tính toán statistics
-          const formattedData = data.dates.map((date, index) => ({
-            date,
-            aqi: Number(data.predictions[index].toFixed(3))
+          const formattedData = data.data.map((item) => ({
+            date: item.date,
+            aqi: item.predicted_AQI,
+            pm25: item.input_data?.['PM2.5'],
+            pm10: item.input_data?.['PM10'],
+            co: item.input_data?.['CO'],
+            so2: item.input_data?.['SO2']
           }));
 
-          // Tính toán các thống kê
+          // Tính toán thống kê
           const values = formattedData.map(d => d.aqi);
           const min = Math.min(...values);
           const max = Math.max(...values);
@@ -91,9 +108,10 @@ function AQIPredictionChart() {
           
           setPredictionData(formattedData);
         } else {
-          throw new Error(data.message || 'Failed to fetch predictions');
+          throw new Error(data.message || 'Không thể lấy dữ liệu dự đoán');
         }
       } catch (err) {
+        console.error('Fetch error:', err);  // Thêm log chi tiết
         setError(err.message);
       } finally {
         setLoading(false);

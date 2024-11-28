@@ -1,3 +1,5 @@
+// my-react-app2/src/components/AirQualityMap.js
+
 import React from 'react';
 import { GoogleMap, useJsApiLoader } from '@react-google-maps/api';
 
