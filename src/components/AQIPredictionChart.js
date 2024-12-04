@@ -19,7 +19,8 @@ const PredictionContainer = styled.div`
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  grid-column: 1 / -1;
+  width: 100%;
+  height: 100%;
 `;
 
 const Title = styled.h2`
@@ -156,53 +157,55 @@ function AQIPredictionChart() {
         </StatCard>
       </StatsContainer>
 
-      <ResponsiveContainer width="100%" height={400}>
-        <LineChart
-          data={predictionData}
-          margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis
-            dataKey="date"
-            angle={-45}
-            textAnchor="end"
-            height={60}
-          />
-          <YAxis
-            domain={calculateYDomain()}
-            tickCount={10}
-            tickFormatter={value => value.toFixed(3)}
-          />
-          <Tooltip
-            formatter={(value) => [value.toFixed(3), 'AQI']}
-            labelFormatter={(label) => `Ngày: ${label}`}
-          />
-          <Legend />
-          <ReferenceLine
-            y={stats.avg}
-            stroke="#666"
-            strokeDasharray="3 3"
-            label={{ value: 'Trung bình', position: 'right' }}
-          />
-          <Line
-            type="monotone"
-            dataKey="aqi"
-            name="Chỉ số AQI"
-            stroke="#3498db"
-            strokeWidth={2}
-            dot={{
-              fill: '#3498db',
-              strokeWidth: 2,
-              r: 6
-            }}
-            activeDot={{
-              r: 8,
-              stroke: '#3498db',
-              strokeWidth: 2
-            }}
-          />
-        </LineChart>
-      </ResponsiveContainer>
+      <div style={{ width: '100%', height: 400 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart
+            data={predictionData}
+            margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis
+              dataKey="date"
+              angle={-45}
+              textAnchor="end"
+              height={60}
+            />
+            <YAxis
+              domain={calculateYDomain()}
+              tickCount={10}
+              tickFormatter={value => value.toFixed(3)}
+            />
+            <Tooltip
+              formatter={(value) => [value.toFixed(3), 'AQI']}
+              labelFormatter={(label) => `Ngày: ${label}`}
+            />
+            <Legend />
+            <ReferenceLine
+              y={stats.avg}
+              stroke="#666"
+              strokeDasharray="3 3"
+              label={{ value: 'Trung bình', position: 'right' }}
+            />
+            <Line
+              type="monotone"
+              dataKey="aqi"
+              name="Chỉ số AQI"
+              stroke="#3498db"
+              strokeWidth={2}
+              dot={{
+                fill: '#3498db',
+                strokeWidth: 2,
+                r: 6
+              }}
+              activeDot={{
+                r: 8,
+                stroke: '#3498db',
+                strokeWidth: 2
+              }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
     </PredictionContainer>
   );
 }

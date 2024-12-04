@@ -54,26 +54,26 @@ function WeatherInfo() {
 
   return (
     <WeatherCard>
-      <WeatherTitle>Current Weather in Ho Chi Minh City</WeatherTitle>
+      <WeatherTitle>Thời tiết hiện tại tại TP. Hồ Chí Minh</WeatherTitle>
       <WeatherItem>
         <WeatherIcon><WiThermometer /></WeatherIcon>
-        Temperature: {weatherData.main.temp.toFixed(1)}°C
+        Nhiệt độ: {weatherData.main.temp.toFixed(1)}°C
       </WeatherItem>
       <WeatherItem>
         <WeatherIcon><WiThermometer /></WeatherIcon>
-        Feels like: {weatherData.main.feels_like.toFixed(1)}°C
+        Cảm giác như: {weatherData.main.feels_like.toFixed(1)}°C
       </WeatherItem>
       <WeatherItem>
         <WeatherIcon><WiHumidity /></WeatherIcon>
-        Humidity: {weatherData.main.humidity}%
+        Độ ẩm: {weatherData.main.humidity}%
       </WeatherItem>
       <WeatherItem>
         <WeatherIcon><WiStrongWind /></WeatherIcon>
-        Wind Speed: {weatherData.wind.speed.toFixed(1)} m/s
+        Tốc độ gió: {weatherData.wind.speed.toFixed(1)} m/s
       </WeatherItem>
       <WeatherItem>
         <WeatherIcon><WiRainMix /></WeatherIcon>
-        Weather: {weatherData.weather[0].description}
+        Thời tiết: {weatherData.weather[0].description}
       </WeatherItem>
     </WeatherCard>
   );

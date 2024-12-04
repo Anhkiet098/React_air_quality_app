@@ -71,8 +71,8 @@ function AirQualityInfo() {
   if (!airQualityData) return <AirQualityCard>Loading air quality data...</AirQualityCard>;
 
   const getAQIDescription = (aqi) => {
-    const descriptions = ['Good', 'Fair', 'Moderate', 'Poor', 'Very Poor'];
-    return descriptions[aqi - 1] || 'Unknown';
+    const descriptions = ['Tốt', 'Khá', 'Trung bình', 'Kém', 'Rất kém'];
+    return descriptions[aqi - 1] || 'Không xác định';
   };
 
   const { list } = airQualityData;
@@ -80,19 +80,19 @@ function AirQualityInfo() {
 
   return (
     <AirQualityCard>
-      <AirQualityTitle>Air Quality in Ho Chi Minh City</AirQualityTitle>
+      <AirQualityTitle>Chất lượng không khí tại TP. Hồ Chí Minh</AirQualityTitle>
       <AirQualityItem>
         <AirQualityIcon><WiDust /></AirQualityIcon>
-        Air Quality Index: <AQIIndicator aqi={main.aqi}>{main.aqi} - {getAQIDescription(main.aqi)}</AQIIndicator>
+        Chỉ số chất lượng không khí: <AQIIndicator aqi={main.aqi}>{main.aqi} - {getAQIDescription(main.aqi)}</AQIIndicator>
       </AirQualityItem>
-      <AirQualityItem>CO: {components.co.toFixed(2)} μg/m3</AirQualityItem>
-      <AirQualityItem>NO: {components.no.toFixed(2)} μg/m3</AirQualityItem>
-      <AirQualityItem>NO2: {components.no2.toFixed(2)} μg/m3</AirQualityItem>
-      <AirQualityItem>O3: {components.o3.toFixed(2)} μg/m3</AirQualityItem>
-      <AirQualityItem>SO2: {components.so2.toFixed(2)} μg/m3</AirQualityItem>
-      <AirQualityItem>PM2.5: {components.pm2_5.toFixed(2)} μg/m3</AirQualityItem>
-      <AirQualityItem>PM10: {components.pm10.toFixed(2)} μg/m3</AirQualityItem>
-      <AirQualityItem>NH3: {components.nh3.toFixed(2)} μg/m3</AirQualityItem>
+      <AirQualityItem>Nồng độ CO: {components.co.toFixed(2)} μg/m3</AirQualityItem>
+      <AirQualityItem>Nồng độ NO: {components.no.toFixed(2)} μg/m3</AirQualityItem>
+      <AirQualityItem>Nồng độ NO2: {components.no2.toFixed(2)} μg/m3</AirQualityItem>
+      <AirQualityItem>Nồng độ O3: {components.o3.toFixed(2)} μg/m3</AirQualityItem>
+      <AirQualityItem>Nồng độ SO2: {components.so2.toFixed(2)} μg/m3</AirQualityItem>
+      <AirQualityItem>Nồng độ PM2.5: {components.pm2_5.toFixed(2)} μg/m3</AirQualityItem>
+      <AirQualityItem>Nồng độ PM10: {components.pm10.toFixed(2)} μg/m3</AirQualityItem>
+      <AirQualityItem>Nồng độ NH3: {components.nh3.toFixed(2)} μg/m3</AirQualityItem>
     </AirQualityCard>
   );
 }
