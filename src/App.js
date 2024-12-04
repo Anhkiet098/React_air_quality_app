@@ -4,13 +4,13 @@ import WeatherInfo from './components/WeatherInfo';
 import AirQualityInfo from './components/AirQualityInfo';
 import AirQualityMap from './components/AirQualityMap';
 import AQIPredictionChart from './components/AQIPredictionChart';
+import HourlyAQIPrediction from './components/HourlyAQIPrediction';
 
 const AppContainer = styled.div`
   font-family: 'Roboto', sans-serif;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 20px;
-  background-color: #f5f5f5;
 `;
 
 const Header = styled.header`
@@ -24,18 +24,26 @@ const Header = styled.header`
 `;
 
 const MainContent = styled.main`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 20px;
+`;
 
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
+const TopSection = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+`;
+
+const PredictionSection = styled.div`
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+  align-items: flex-start;
 `;
 
 const MapContainer = styled.div`
-  grid-column: 1 / -1;
-  margin-top: 20px;
+  width: 100%;
 `;
 
 function App() {
@@ -45,15 +53,21 @@ function App() {
         <h1>Ho Chi Minh City Weather & Air Quality</h1>
       </Header>
       <MainContent>
-        <WeatherInfo />
-        <AirQualityInfo />
-        <AQIPredictionChart />
+        <TopSection>
+          <WeatherInfo />
+          <AirQualityInfo />
+        </TopSection>
+        <PredictionSection>
+          <AQIPredictionChart style={{ flex: 1 }} />
+          <HourlyAQIPrediction style={{ width: '300px' }} />
+        </PredictionSection>
+        <MapContainer>
+          <AirQualityMap />
+        </MapContainer>
       </MainContent>
-      <MapContainer>
-        <AirQualityMap />
-      </MapContainer>
     </AppContainer>
   );
 }
 
 export default App;
+

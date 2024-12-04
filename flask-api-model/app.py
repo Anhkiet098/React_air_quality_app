@@ -4,13 +4,20 @@ import requests
 import pandas as pd
 import numpy as np
 import joblib
+from tensorflow.keras.models import load_model
+from sklearn.preprocessing import StandardScaler
+from datetime import datetime, timedelta, timezone
 
 app = Flask(__name__)
 CORS(app)
 
 # Tải mô hình đã được huấn luyện
-model_filename = 'my-react-app2/flask-api-model/model/tai_theo_ngay_25_11_mlp_air_quality_model_daily.joblib'
+model_filename = '/home/anhkiet/Documents/Thuc_Tap/react-app2-fr-ba/my-react-app2/flask-api-model/model/tai_theo_ngay_25_11_mlp_air_quality_model_daily.joblib'
 best_model = joblib.load(model_filename)
+
+# Thêm đường dẫn đến model mới
+hourly_model_path = '/home/anhkiet/Documents/Thuc_Tap/react-app2-fr-ba/my-react-app2/flask-api-model/model/maigiang_25_11_theo_gio_bilstm_aqi_model.keras'
+hourly_model = load_model(hourly_model_path)
 
 # Cấu hình API
 OPENWEATHER_API_KEY = 'bb5bc6705ec5752cb4951b0774ffa9d2'
@@ -62,7 +69,8 @@ def get_air_quality_data_7_days():
         print(f"Lỗi khi lấy dữ liệu: {e}")
         return None
 
-# Endpoint để dự đoán AQI cho 7 ngày tiếp theo
+
+# Endpoint để dự đoán AQI cho 7 ngày tiếp theo 
 @app.route('/predict_day', methods=['GET'])
 def predict_aqi():
     try:
@@ -114,6 +122,94 @@ def predict_aqi():
 
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
+    
+
+@app.route('/predict_hourly', methods=['GET'])
+def predict_hourly_aqi():
+    try:
+        # Sử dụng datetime.now(timezone.utc) thay vì utcnow()
+        hours = 500
+        end_time = int(datetime.now(timezone.utc).timestamp())
+        start_time = int((datetime.now(timezone.utc) - timedelta(hours=hours)).timestamp())
+        
+        url = f'http://api.openweathermap.org/data/2.5/air_pollution/history?lat={LAT}&lon={LON}&start={start_time}&end={end_time}&appid={OPENWEATHER_API_KEY}'
+        
+        response = requests.get(url)
+        if response.status_code != 200:
+            return jsonify({"status": "error", "message": "Không thể lấy dữ liệu từ API"}), 500
+
+        # Xử lý dữ liệu
+        data = response.json()
+        records = []
+        for item in data['list']:
+            # Sử dụng fromtimestamp với timezone.utc
+            dt = datetime.fromtimestamp(item['dt'], tz=timezone.utc)
+            components = item['components']
+            records.append({
+                'Datetime': dt,
+                'PM2.5': components['pm2_5'],
+                'PM10': components['pm10'],
+                'CO': components['co'],
+                'SO2': components['so2'],
+                'AQI': item.get('main', {}).get('aqi', 0)
+            })
+
+        df = pd.DataFrame(records)
+        df['Datetime'] = pd.to_datetime(df['Datetime'])
+        df.set_index('Datetime', inplace=True)
+        df.ffill(inplace=True)
+
+        # Chuẩn hóa dữ liệu
+        scaler = StandardScaler()
+        scaled_data = scaler.fit_transform(df[['PM2.5', 'PM10', 'CO', 'SO2', 'AQI']])
+        df_scaled = pd.DataFrame(scaled_data, columns=['PM2.5', 'PM10', 'CO', 'SO2', 'AQI'])
+
+        # Tạo sequences
+        window_size = 48
+        X_input = np.array([df_scaled.values[i - window_size:i] for i in range(window_size, len(df_scaled))])
+
+        # Dự đoán
+        current_input = X_input[-1]
+        future_predictions = []
+
+        for _ in range(7):
+            pred = hourly_model.predict(current_input[np.newaxis, :, :], verbose=0)
+            future_predictions.append(pred[0, 0])
+            current_input = np.append(current_input[1:], [[0, 0, 0, 0, pred[0, 0]]], axis=0)
+
+        # Làm mượt dự đoán
+        smoothed_predictions = pd.Series(future_predictions).rolling(window=3).mean().bfill()
+        predictions_scaled = np.concatenate(
+            (np.zeros((len(smoothed_predictions), df_scaled.shape[1] - 1)), smoothed_predictions.values.reshape(-1, 1)),
+            axis=1
+        )
+        future_aqi = scaler.inverse_transform(predictions_scaled)[:, -1]
+
+        # Tạo kết quả
+        prediction_results = []
+        for i, aqi in enumerate(future_aqi):
+            future_time = datetime.now(timezone.utc) + timedelta(hours=i + 1)
+            prediction_results.append({
+                "datetime": future_time.strftime('%Y-%m-%d %H:%M:%S'),
+                "aqi": float(aqi)
+            })
+
+        return jsonify({
+            "status": "success",
+            "data": prediction_results
+        })
+
+    except Exception as e:
+        print(f"Error in predict_hourly_aqi: {str(e)}")  # Thêm log để debug
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+# Thêm CORS headers
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    return response
 
 if __name__ == '__main__':
     app.run(debug=True, port=8000)
